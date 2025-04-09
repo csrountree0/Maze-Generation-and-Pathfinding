@@ -83,18 +83,13 @@ document.querySelector('#app').innerHTML = `
 
 // Initialize the grid
 document.addEventListener('DOMContentLoaded', () => {
-  // Create initial grid
-  createGrid('grid', 20);
+
 
   // Add event listener for size changes
   document.getElementById('grid-size').addEventListener('change', (e) => {
     createGrid('grid', parseInt(e.target.value));
   });
 
-  // Add reset functionality
-  document.getElementById('reset-grid').addEventListener('click', () => {
-    const size = parseInt(document.getElementById('grid-size').value);
-    createGrid('grid', size);
-  });
+
 });
 
