@@ -17,10 +17,10 @@ document.querySelector('#app').innerHTML = `
           <div class="size-control">
             <label for="grid-size">Grid Size:</label>
             <select id="grid-size">
-              <option value="10">10x10</option>
-              <option value="20" selected>20x20</option>
-              <option value="30">30x30</option>
-              <option value="40">40x40</option>
+              <option value="9">9x9</option>
+              <option value="19" selected>19x19</option>
+              <option value="29">29x29</option>
+              <option value="39">39x39</option>
             </select>
           </div>
           <button class="reset-button" id="reset-grid">Reset Grid</button>
@@ -87,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Add event listener for size changes
   document.getElementById('grid-size').addEventListener('change', (e) => {
+    console.log(e.target.value);
     createGrid('grid', parseInt(e.target.value));
   });
 

@@ -104,6 +104,16 @@ header {
   gap: 0.75rem;
 }
 
+.reset-button{
+  background-color: #3a3a3a;
+  border-radius: 8px;
+  border-color: #3a3a3a;
+}
+
+.reset-button:hover {
+  border-color: white;
+}
+
 .size-control {
   display: flex;
   align-items: center;

@@ -18,7 +18,6 @@ function createGrid(containerId, size) {
             const square = document.createElement('div');
             square.className = 'grid-square';
             square.draggable = false;
-            square.classList.add('right-wall', 'bottom-wall', 'left-wall', 'top-wall');
             square.dataset.row = i;
             square.dataset.col = j;
             grid.appendChild(square);
@@ -32,30 +31,46 @@ function updateSquareState(square) {
     grid2d[row][col] = square.classList.contains('wall') ? 1 : 0;
 }
 
-function updateGridFromArray() {
+// export function updateGridFromArray() {
+//     const grid = document.getElementById('grid');
+//     const squares = grid.getElementsByClassName('grid-square');
+//
+//     for (let i = 0; i < gridSize; i++) {
+//         for (let j = 0; j < gridSize; j++) {
+//             const square = Array.from(squares).find(s =>
+//                 parseInt(s.dataset.row) === i &&
+//                 parseInt(s.dataset.col) === j
+//             );
+//
+//             if (square) {
+//                 if (grid2d[i][j] === 1) {
+//                     square.classList.add('wall');
+//                 } else {
+//                     square.classList.remove('wall');
+//                 }
+//             }
+//         }
+//     }
+// }
+
+export function updateGridFromArray() {
     const grid = document.getElementById('grid');
     const squares = grid.getElementsByClassName('grid-square');
-    
-    for (let i = 0; i < gridSize; i++) {
-        for (let j = 0; j < gridSize; j++) {
-            const square = Array.from(squares).find(s => 
-                parseInt(s.dataset.row) === i && 
-                parseInt(s.dataset.col) === j
-            );
-            
-            if (square) {
-                if (grid2d[i][j] === 1) {
-                    square.classList.add('wall');
-                } else {
-                    square.classList.remove('wall');
-                }
+    for(let i = 0; i < gridSize; i++) {
+        for(let j = 0 ; j < gridSize; j++) {
+            if(grid2d[i][j] === 1){
+                squares[(i*gridSize)+j].style.backgroundColor = 'black';
+            }
+            else if (grid2d[i][j] === 0){
+                squares[(i*gridSize)+j].style.backgroundColor = 'white';
             }
         }
     }
 }
 
+
 document.addEventListener('DOMContentLoaded', () => {
-    createGrid('grid', 20);
+    createGrid('grid', 19);
     
     document.getElementById('grid-size').addEventListener('change', (e) => {
         createGrid('grid', parseInt(e.target.value));
@@ -70,8 +85,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.classList.contains('grid-square')) {
             isMouseDown = true;
             currentGrid = e.target.closest('.grid-container');
-            isAddingWall = !e.target.classList.contains('wall');
-            e.target.classList.toggle('wall');
+            //isAddingWall = !e.target.classList.contains('wall');
+            isAddingWall = !(e.target.style.backgroundColor === 'black');
+          //  e.target.classList.toggle('wall');
             updateSquareState(e.target);
         }
     });
@@ -89,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('mouseenter', (e) => {
         if (isMouseDown && e.target.classList.contains('grid-square') && currentGrid === e.target.closest('.grid-container')) {
+            console.log("hello")
             if (isAddingWall) {
                 e.target.classList.add('wall');
             } else {
@@ -98,3 +115,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, true);
 });
+
+export function get_grid(){
+    return grid2d
+}
+
+export function set_grid(grid){
+    grid2d = grid
+}
