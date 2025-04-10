@@ -251,47 +251,20 @@ header {
   -ms-user-select: none;
 }
 
-.grid-square.wall {
-  background-color: black;
-}
-
-.grid-square::after {
+.grid-square::before {
   content: '';
   position: absolute;
-  background-color: #1a1a1a;
-  z-index: 1;
-}
-
-.grid-square.right-wall::after {
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-}
-
-.grid-square.bottom-wall::after {
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-}
-
-.grid-square.left-wall::after {
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-}
-
-.grid-square.top-wall::after {
   top: 0;
   left: 0;
   right: 0;
-  height: 1px;
-}
-
-.grid-square:hover {
+  bottom: 0;
   background-color: #3a3a3a;
+  opacity: 0;
+
+}
+
+.grid-square:hover::before {
+  opacity: 0.8;
 }
 
 .grid-container.drag-over {

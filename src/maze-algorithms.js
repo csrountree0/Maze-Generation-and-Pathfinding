@@ -1,43 +1,41 @@
-import {get_grid,set_grid,updateGridFromArray} from "./grid.js";
+import * as gridfunc from "./grid.js";
+import * as pathfunc from "./path-algorithms.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     const algorithmButtons = document.querySelectorAll('.algorithm-button');
-    const grids = document.querySelectorAll('.grid-container');
+    const gridContainer = document.querySelector('.grid-container');
     
     algorithmButtons.forEach(button => {
         button.addEventListener('dragstart', (e) => {
             e.dataTransfer.setData('algorithm', e.target.dataset.algorithm);
-            e.target.classList.add('dragging');
-        });
-        
-        button.addEventListener('dragend', (e) => {
-            e.target.classList.remove('dragging');
         });
     });
     
-    grids.forEach(grid => {
-        grid.addEventListener('dragover', (e) => {
-            console.log('dragover');
-                e.preventDefault();
-                grid.classList.add('drag-over');
-        });
+    gridContainer.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        gridContainer.classList.add('drag-over');
+    });
 
-        grid.addEventListener('dragleave', () => {
-            console.log("me2")
+    gridContainer.addEventListener('dragleave', (e) => {
+        if (!gridContainer.contains(e.relatedTarget)) {
+            gridContainer.classList.remove('drag-over');
+        }
+    });
 
-            grid.classList.remove('drag-over');
-        });
-
-        grid.addEventListener('drop', async (e) => {
-
-            e.preventDefault();
-            grid.classList.remove('drag-over');
-
-            const algorithm = e.dataTransfer.getData('algorithm');
+    gridContainer.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        gridContainer.classList.remove('drag-over');
+        
+        const algorithm = e.dataTransfer.getData('algorithm');
+        if(!gridfunc.get_generating()){
+            gridfunc.set_stop(false);
 
             switch (algorithm) {
-                case 'backtracking':
-                   await backtrack()
+                case 'backtracking-m':
+                    await backtrack();
+                    break;
+                case 'backtracking-p':
+                    await pathfunc.backtrack();
                     break;
                 case 'brute-force':
                     break;
@@ -46,14 +44,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 case 'astar':
                     break;
             }
-        });
+        }
     });
-}); 
+});
 
 var start;
 var end;
 var grid;
-
 
 
 export function set_start(x,y){
@@ -64,9 +61,16 @@ export function set_end(x,y){
     end = [x,y];
 }
 
+export function get_start(){
+    return start;
+}
+
+export function get_end(){
+    return end;
+}
 
 export async function backtrack(){
- grid = get_grid()
+ grid = gridfunc.get_grid()
    let visited = []
      // outline grid
     for(let i=0; i<grid.length;i++){
@@ -76,23 +80,21 @@ export async function backtrack(){
             if (i === 0 || i === grid.length - 1 || j === 0 || j === grid[i].length - 1) {
                 grid[i][j] = 1;
                 visited[i].push(1);
-
             }
             else if ((!(j % 2) || !(i % 2))) {
                 grid[i][j] = 1;
                 visited[i].push(0);
             }
             else {
+                grid[i][j] = 5;
                 visited[i].push(0);
             }
 
         }
     }
 
-    console.log(visited)
-
    // set_grid(grid)
-    updateGridFromArray(grid)
+    gridfunc.updateGridFromArray(grid)
     await new Promise(requestAnimationFrame)
 
     let sx =Math.floor( Math.random() % (grid.length - 2));
@@ -100,21 +102,25 @@ export async function backtrack(){
     let sy = Math.floor(Math.random() % (grid.length - 2));
     sy = !(sy % 2) ? sy + 1 : sy;
 
-  //  await backtrackHelper(sx,sy,visited,sx,sy)
+    gridfunc.set_generating(true);
+    await backtrackHelper(sx,sy,visited,sx,sy);
+    grid[1][1]=2;
+    grid[grid.length-2][grid.length-2]=3;
+    gridfunc.updateGridFromArray();
+    gridfunc.set_generating(false);
 }
 export async function backtrackHelper(sx,sy,v,x,y ){
 v[x][y] = 1;
 let d = [1,2,3,4]
 // 1: up, 2: right, 3: left, 4: down
-    while(d.length > 0){
-
+    while(d.length > 0 && !gridfunc.get_stop()){
+        grid[x][y]=0;
         let ran =Math.floor(Math.random() * d.length);
-        console.log(ran)
         if(d[ran] === 1){   // up
             if(x-2 > -1 && !v[x-2][y]){
                 v[x-2][y] = 1;
                 grid[x - 1][y] = 0;
-                updateGridFromArray();
+                gridfunc.updateGridFromArray();
                 await new Promise(requestAnimationFrame)
                await backtrackHelper(sx, sy, v, x-2, y);
             }
@@ -123,7 +129,7 @@ let d = [1,2,3,4]
             if(y+2 < grid.length && !v[x][y+2]){
                 v[x][y+2] = 1;
                 grid[x][y+1] = 0;
-                updateGridFromArray();
+                gridfunc.updateGridFromArray();
                 await new Promise(requestAnimationFrame)
                 await backtrackHelper(sx, sy, v, x, y+2);
             }
@@ -132,7 +138,7 @@ let d = [1,2,3,4]
             if(y-2 > -1 && !v[x][y-2]){
                 v[x][y-2] = 1;
                 grid[x][y-1] = 0;
-                updateGridFromArray();
+                gridfunc.updateGridFromArray();
                 await new Promise(requestAnimationFrame)
                 await backtrackHelper(sx, sy, v, x, y-2);
             }
@@ -141,7 +147,7 @@ let d = [1,2,3,4]
             if(x+2 < grid.length && !v[x+2][y]){
                 v[x+2][y] = 1;
                 grid[x+1][y] = 0;
-                updateGridFromArray();
+                gridfunc.updateGridFromArray();
                 await new Promise(requestAnimationFrame)
                 await backtrackHelper(sx, sy, v, x+2, y);
             }

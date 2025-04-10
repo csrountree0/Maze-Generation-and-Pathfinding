@@ -21,6 +21,9 @@ document.querySelector('#app').innerHTML = `
               <option value="19" selected>19x19</option>
               <option value="29">29x29</option>
               <option value="39">39x39</option>
+              <option value="49">49x49</option>
+              <option value="59">59x59</option>
+              <option value="69">69x69</option>
             </select>
           </div>
           <button class="reset-button" id="reset-grid">Reset Grid</button>
@@ -33,7 +36,7 @@ document.querySelector('#app').innerHTML = `
               <span class="button-label">Kruskal's</span>
               <span class="button-desc">Randomized maze with minimum spanning tree</span>
             </button>
-            <button draggable="true" class="algorithm-button" data-algorithm="backtracking">
+            <button draggable="true" class="algorithm-button" data-algorithm="backtracking-m">
               <span class="button-label">Backtracking</span>
               <span class="button-desc">Depth-first search maze generation</span>
             </button>
@@ -47,7 +50,7 @@ document.querySelector('#app').innerHTML = `
         <div class="section-controls">
           <h2>Pathfinding</h2>
           <div class="algorithm-buttons">
-            <button draggable="true" class="algorithm-button" data-algorithm="backtracking">
+            <button draggable="true" class="algorithm-button" data-algorithm="backtracking-p">
               <span class="button-label">Backtracking</span>
               <span class="button-desc">Depth-first path search</span>
             </button>
@@ -66,7 +69,7 @@ document.querySelector('#app').innerHTML = `
       <div class="grids-container">
         <div class="grid-section">
           <div class="grid-header">
-            <h3>Algorithm Comparison</h3>
+            <h3>Algorithm Stats</h3>
             <div class="algorithm-stats">
               <span class="stat-label">Time:</span>
               <span class="stat-value" id="time-value">0ms</span>

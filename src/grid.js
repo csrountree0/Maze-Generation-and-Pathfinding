@@ -1,10 +1,16 @@
+import {set_start,set_end} from './maze-algorithms.js';
+
 let isMouseDown = false;
 let isAddingWall = false;
 let currentGrid = null;
 let grid2d = [];
 let gridSize = 0;
+let generating = false;
+let stop = false;
 
 function createGrid(containerId, size) {
+    set_start(-1,-1);
+    set_end(-1,-1);
     gridSize = size;
     grid2d = Array(size).fill().map(() => Array(size).fill(0));
     const grid = document.getElementById(containerId);
@@ -20,6 +26,8 @@ function createGrid(containerId, size) {
             square.draggable = false;
             square.dataset.row = i;
             square.dataset.col = j;
+            square.style.backgroundColor = 'white';
+            square.style.borderColor = square.style.backgroundColor;
             grid.appendChild(square);
         }
     }
@@ -28,43 +36,43 @@ function createGrid(containerId, size) {
 function updateSquareState(square) {
     const row = parseInt(square.dataset.row);
     const col = parseInt(square.dataset.col);
-    grid2d[row][col] = square.classList.contains('wall') ? 1 : 0;
+    grid2d[row][col] = square.style.backgroundColor === 'black' ? 1 : 0;
 }
-
-// export function updateGridFromArray() {
-//     const grid = document.getElementById('grid');
-//     const squares = grid.getElementsByClassName('grid-square');
-//
-//     for (let i = 0; i < gridSize; i++) {
-//         for (let j = 0; j < gridSize; j++) {
-//             const square = Array.from(squares).find(s =>
-//                 parseInt(s.dataset.row) === i &&
-//                 parseInt(s.dataset.col) === j
-//             );
-//
-//             if (square) {
-//                 if (grid2d[i][j] === 1) {
-//                     square.classList.add('wall');
-//                 } else {
-//                     square.classList.remove('wall');
-//                 }
-//             }
-//         }
-//     }
-// }
 
 export function updateGridFromArray() {
     const grid = document.getElementById('grid');
     const squares = grid.getElementsByClassName('grid-square');
     for(let i = 0; i < gridSize; i++) {
         for(let j = 0 ; j < gridSize; j++) {
-            if(grid2d[i][j] === 1){
-                squares[(i*gridSize)+j].style.backgroundColor = 'black';
+            const square = squares[(i*gridSize)+j];
+            
+            switch(grid2d[i][j]) {
+                 case 0: // empty
+                    square.style.backgroundColor = 'white';
+                    square.style.borderColor = 'white';
+                    break;
+                case 1: // wall
+                    square.style.backgroundColor = 'black';
+                    
+                    break;
+                case 2: // start
+                    square.style.backgroundColor = 'green';
+                    break;
+                case 3: // end
+                    square.style.backgroundColor = 'red';
+                    break;
+                case 4: // path
+                    square.style.backgroundColor = 'yellow';
+                    break;
+                case 5: // unexplored
+                    square.style.backgroundColor = 'purple';
+                    break;
+                default:
+                    square.style.backgroundColor = 'pink';
             }
-            else if (grid2d[i][j] === 0){
-                squares[(i*gridSize)+j].style.backgroundColor = 'white';
-            }
-        }
+            square.style.borderColor = square.style.backgroundColor;
+    
+        }   
     }
 }
 
@@ -79,15 +87,20 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('reset-grid').addEventListener('click', () => {
         const size = parseInt(document.getElementById('grid-size').value);
         createGrid('grid', size);
+        stop = true;
     });
 
     document.addEventListener('mousedown', (e) => {
-        if (e.target.classList.contains('grid-square')) {
+        if (!generating && e.target.classList.contains('grid-square')) {
             isMouseDown = true;
             currentGrid = e.target.closest('.grid-container');
-            //isAddingWall = !e.target.classList.contains('wall');
             isAddingWall = !(e.target.style.backgroundColor === 'black');
-          //  e.target.classList.toggle('wall');
+            if (isAddingWall) {
+                e.target.style.backgroundColor = 'black';
+            } else {
+                e.target.style.backgroundColor = 'white';
+            }
+            e.target.style.borderColor = e.target.style.backgroundColor;
             updateSquareState(e.target);
         }
     });
@@ -104,22 +117,38 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('mouseenter', (e) => {
-        if (isMouseDown && e.target.classList.contains('grid-square') && currentGrid === e.target.closest('.grid-container')) {
-            console.log("hello")
+        if (!generating && isMouseDown && e.target.classList.contains('grid-square') && currentGrid === e.target.closest('.grid-container')) {
             if (isAddingWall) {
-                e.target.classList.add('wall');
+                e.target.style.backgroundColor = 'black';
             } else {
-                e.target.classList.remove('wall');
+                e.target.style.backgroundColor = 'white';
             }
+            e.target.style.borderColor = e.target.style.backgroundColor;
             updateSquareState(e.target);
         }
     }, true);
 });
 
 export function get_grid(){
-    return grid2d
+    return grid2d;
 }
 
 export function set_grid(grid){
-    grid2d = grid
+    grid2d = grid;
+    updateGridFromArray();
 }
+
+export function set_generating(v){
+    generating = v;
+}
+export function get_generating(){
+    return generating;
+}
+
+export function get_stop(){
+    return stop;
+}
+export function set_stop(v){
+    stop = v;
+}
+
