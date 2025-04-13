@@ -164,119 +164,198 @@ export async function kruskals(){
 
     let parents = []
     let walls = []
+    let colors = []
+    let groupSizes = []
+    let totalCells = 0;
+
     for (let i = 0; i < grid.length; i++) {
         parents.push([]);
+        colors.push([]);
+        groupSizes.push([]);
         for (let j = 0; j < grid.length; j++) {
-            parents[i].push([-1,-1]);
-            if (i === 0 || i === grid.length - 1 || j === 0 || j === grid.length - 1) {						// make edges walls
-                grid[i][j]=1;
+            parents[i].push([i, j]);
+            colors[i].push(Math.floor(Math.random() * 5) + 6);
+            groupSizes[i].push(1);
+            if (i === 0 || i === grid.length - 1 || j === 0 || j === grid.length - 1) {
+                grid[i][j] = 1;
             }
-            else if ((!(j % 2) || !(i % 2))) {													// make even rows and colunns walls
+            else if ((!(j % 2) || !(i % 2))) {
                 grid[i][j] = 1;
                 if (!(i % 2 === 0 && j % 2 === 0)) {
-                    grid[i][j] = 1;
-                    walls.push([ i,j ]);													// only nodes where one is odd get pushed into our vector
+                    walls.push([i, j]);
                 }
-            }
-
-        }
-    }
-
-console.log(parents)
-    updateGridFromArray()
-   // return
-    while(walls.length!==0){    //
-
-        let ran = Math.floor(Math.random() *walls.length) //get a random wall from arr
-        let wx = walls[ran][0]
-        let wy = walls[ran][1]
-        grid[wx][wy] = 0
-
-        // since even we only need to check up and down
-        if(wx%2){
-            if(grid[wx-1][wy] !== 0 && grid[wx+1][wy] !== 0){ // up and down
-                if(sameparent(parents,parents[wx-1][wy],parents[wx+1][wy])){
-                    walls.splice(ran,1)
-                    continue;
-                }
-               grid[wx][wy] = 0
-                parents[wx+1][wy] = [wx-1,wy]
-
-                walls.splice(ran,1)
-            }
-        }
-        else{
-            if(grid[wx][wy-1] !== 0 && grid[wx][wy+1] !== 0){ // up and down
-                if(sameparent(parents,parents[wx][wy-1],parents[wx][wy+1])){
-
-                    walls.splice(ran,1)
-                    continue;
-                }
-                grid[wx][wy] = 0
-                parents[wx][wy+1] = [wx,wy-1]
-                walls.splice(ran,1)
-            }
-        }
-
-
-        updateGridFromArray()
-        await new Promise(requestAnimationFrame)
-
-    }
-
-
-}
-
-
-function sameparent(parents, o1,o2){
-    if(o1[0]===-1){
-        return false
-    }
-
-    while(o1[0]!== -1){
-       o1 = parents[o1[0]][o1[1]]
-    }
-    while(o2[0]!== -1){
-        o2 = parents[o2[0]][o2[1]]
-    }
-
-
-
-    return  o1[0] === o2[0] && o2[1] === o2[1]
-}
-function RemoveWall(x, y, w) {
-//	sort(w.begin(), w.end(), comp);
-    let l = 0, m = 0, r = w.size() - 1;
-
-    while (l <= r) {
-
-        m = (l+r)/2;
-        if (w[m][0]=== x && w[m][1]=== y) {
-            //	std::cout << "wall at " << x << " " << y << " has been erased\n";
-            w.splice(m,1);
-            return;
-        }
-        else if (w[m][0] === x) {
-            if (w[m][1] > y) {
-                r = m-1;
             }
             else {
-                l = m+1;
+                grid[i][j] = colors[i][j];
+                totalCells++;
+            }
+        }
+    }
+
+    updateGridFromArray();
+    
+    while(walls.length > 0) {
+        let ran = Math.floor(Math.random() * walls.length);
+        let wx = walls[ran][0];
+        let wy = walls[ran][1];
+        
+        if(wx % 2 === 0) {
+            let cell1 = [wx-1, wy];
+            let cell2 = [wx+1, wy];
+            
+            if(!sameparent(parents, cell1, cell2)) {
+                grid[wx][wy] = 0;
+                let root1 = find(parents, cell1);
+                let root2 = find(parents, cell2);
+                
+                let size1 = groupSizes[root1[0]][root1[1]];
+                let size2 = groupSizes[root2[0]][root2[1]];
+                
+                let newColor, newRoot;
+                if (size1 >= size2) {
+                    newColor = colors[root1[0]][root1[1]];
+                    newRoot = root1;
+                    groupSizes[root1[0]][root1[1]] += size2;
+                    if(groupSizes[root1[0]][root1[1]] === totalCells) {
+                        break;
+                    }
+                } else {
+                    newColor = colors[root2[0]][root2[1]];
+                    newRoot = root2;
+                    groupSizes[root2[0]][root2[1]] += size1;
+                    if(groupSizes[root2[0]][root2[1]] === totalCells) {
+                        break;
+                    }
+                }
+                
+                updateGroupColor(parents, colors, size1 >= size2 ? root2 : root1, newColor);
+                
+                parents[wx][wy] = newRoot;
+                colors[wx][wy] = newColor;
+                grid[wx][wy] = newColor;
+                
+                union(parents, size1 >= size2 ? cell2 : cell1, size1 >= size2 ? cell1 : cell2);
             }
         }
         else {
-            if (w[m][1] > x) {
-                r = m-1;
-            }
-            else {
-                l = m+1;
+            let cell1 = [wx, wy-1];
+            let cell2 = [wx, wy+1];
+            
+            if(!sameparent(parents, cell1, cell2)) {
+                grid[wx][wy] = 0;
+                let root1 = find(parents, cell1);
+                let root2 = find(parents, cell2);
+                
+                let size1 = groupSizes[root1[0]][root1[1]];
+                let size2 = groupSizes[root2[0]][root2[1]];
+                
+                let newColor, newRoot;
+                if (size1 >= size2) {
+                    newColor = colors[root1[0]][root1[1]];
+                    newRoot = root1;
+                    groupSizes[root1[0]][root1[1]] += size2;
+                    if(groupSizes[root1[0]][root1[1]] === totalCells) {
+                        break;
+                    }
+                } else {
+                    newColor = colors[root2[0]][root2[1]];
+                    newRoot = root2;
+                    groupSizes[root2[0]][root2[1]] += size1;
+                    if(groupSizes[root2[0]][root2[1]] === totalCells) {
+                        break;
+                    }
+                }
+                
+                updateGroupColor(parents, colors, size1 >= size2 ? root2 : root1, newColor);
+                
+                parents[wx][wy] = newRoot;
+                colors[wx][wy] = newColor;
+                grid[wx][wy] = newColor;
+                
+                union(parents, size1 >= size2 ? cell2 : cell1, size1 >= size2 ? cell1 : cell2);
             }
         }
-
+        
+        walls.splice(ran, 1);
+        updateGridFromArray();
+        await new Promise(requestAnimationFrame);
     }
+    
+
+    for(let i = 0; i < grid.length; i++) {
+        for(let j = 0; j < grid.length; j++) {
+            if(grid[i][j] !== 1) { 
+                grid[i][j] = 0; 
+            }
+        }
+    }
+    
+
+    grid[1][1] = 2;
+    grid[grid.length-2][grid.length-2] = 3;
+    updateGridFromArray();
+}
 
 
-    //std::cout << "No wall to erase\n";
+function updateGroupColor(parents, colors, root, newColor) {
+    let queue = [root];
+    let visited = new Set();
+    visited.add(`${root[0]},${root[1]}`);
+    
+    while(queue.length > 0) {
+        let [x, y] = queue.shift();
+        colors[x][y] = newColor;
+        grid[x][y] = newColor;
+        
+
+        let directions = [[-1,0], [1,0], [0,-1], [0,1]];
+        for(let [dx, dy] of directions) {
+            let nx = x + dx;
+            let ny = y + dy;
+            let key = `${nx},${ny}`;
+            
+            if(nx >= 0 && nx < parents.length && 
+               ny >= 0 && ny < parents[0].length && 
+               !visited.has(key)) {
+                let currentRoot = find(parents, [nx, ny]);
+                if(currentRoot[0] === root[0] && currentRoot[1] === root[1]) {
+                    queue.push([nx, ny]);
+                    visited.add(key);
+                }
+            }
+        }
+    }
+}
+
+function find(parents, cell) {
+    let [x, y] = cell;
+    let path = [];
+    
+
+    while(parents[x][y][0] !== x || parents[x][y][1] !== y) {
+        path.push([x, y]);
+        [x, y] = parents[x][y];
+    }
+    let root = [x, y];
+    
+
+    for(let [px, py] of path) {
+        parents[px][py] = root;
+    }
+    
+    return root;
+}
+
+function union(parents, cell1, cell2) {
+    let root1 = find(parents, cell1);
+    let root2 = find(parents, cell2);
+    parents[root1[0]][root1[1]] = root2;
+}
+
+function sameparent(parents, cell1, cell2) {
+    let root1 = find(parents, cell1);
+    let root2 = find(parents, cell2);
+    return root1[0] === root2[0] && root1[1] === root2[1];
 }
 
 

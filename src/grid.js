@@ -47,13 +47,12 @@ export function updateGridFromArray() {
             const square = squares[(i*gridSize)+j];
             
             switch(grid2d[i][j]) {
-                 case 0: // empty
+                case 0: // empty
                     square.style.backgroundColor = 'white';
                     square.style.borderColor = 'white';
                     break;
                 case 1: // wall
                     square.style.backgroundColor = 'black';
-                    
                     break;
                 case 2: // start
                     square.style.backgroundColor = 'green';
@@ -67,11 +66,25 @@ export function updateGridFromArray() {
                 case 5: // unexplored
                     square.style.backgroundColor = 'purple';
                     break;
-                default:
+                case 6: // group color 1
+                    square.style.backgroundColor = 'blue';
+                    break;
+                case 7: // group color 2
+                    square.style.backgroundColor = 'orange';
+                    break;
+                case 8: // group color 3
                     square.style.backgroundColor = 'pink';
+                    break;
+                case 9: // group color 4
+                    square.style.backgroundColor = 'cyan';
+                    break;
+                case 10: // group color 5
+                    square.style.backgroundColor = 'magenta';
+                    break;
+                default:
+                    square.style.backgroundColor = 'white';
             }
             square.style.borderColor = square.style.backgroundColor;
-    
         }   
     }
 }
