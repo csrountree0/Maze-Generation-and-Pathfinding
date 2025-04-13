@@ -76,12 +76,37 @@ header {
 .visualization-container {
   display: flex;
   gap: 1.5rem;
-  margin-top: 3rem;
+  margin-top: 5rem;
   max-width: 1400px;
   margin-left: 0;
   margin-right: 0;
   padding: 0 1rem;
   width: 100%;
+}
+
+@media (max-width: 768px) {
+  .visualization-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .controls-panel {
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 1rem;
+  }
+
+  .grids-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 0;
+  }
+
+  .grid-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+  }
 }
 
 .controls-panel {
@@ -104,14 +129,55 @@ header {
   gap: 0.75rem;
 }
 
-.reset-button{
-  background-color: #3a3a3a;
-  border-radius: 8px;
-  border-color: #3a3a3a;
+.reset-button {
+  background-color: #2a2a2a;
+  color: #fff;
+  border: 1px solid #646cff;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.reset-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(100, 108, 255, 0.2), transparent);
+  transition: 0.5s;
 }
 
 .reset-button:hover {
-  border-color: white;
+  background-color: #3a3a3a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.reset-button:hover::before {
+  left: 100%;
+}
+
+.reset-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#reset-grid {
+  background-color: #2a2a2a;
+}
+
+#reset-paths {
+  background-color: #2a2a2a;
 }
 
 .size-control {
@@ -270,6 +336,68 @@ header {
 .grid-container.drag-over {
   border-color: #646cff;
   box-shadow: 0 0 10px rgba(100, 108, 255, 0.5);
+}
+
+.point-btn {
+  padding: 0.5rem 1rem;
+  margin: 0.25rem;
+  background-color: #4a4a4a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.point-btn:hover {
+  background-color: #5a5a5a;
+}
+
+.point-btn.active {
+  background-color: #2a2a2a;
+  box-shadow: 0 0 0 2px #007bff;
+}
+
+.points-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.draggable-point {
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    cursor: grab;
+    user-select: none;
+    text-align: center;
+    font-weight: 500;
+    transition: transform 0.2s;
+}
+
+.draggable-point:hover {
+    transform: translateY(-2px);
+}
+
+.draggable-point:active {
+    cursor: grabbing;
+    transform: translateY(0);
+}
+
+.start-point {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.end-point {
+    background-color: #F44336;
+    color: white;
+}
+
+.grid-square.drag-over {
+    box-shadow: 0 0 0 2px #646cff;
+    z-index: 1;
+    position: relative;
 }
 
 

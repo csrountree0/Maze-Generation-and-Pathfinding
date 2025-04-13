@@ -27,6 +27,7 @@ document.querySelector('#app').innerHTML = `
             </select>
           </div>
           <button class="reset-button" id="reset-grid">Reset Grid</button>
+          <button class ="reset-button" id="reset-paths">Reset Paths</button>
         </div>
 
         <div class="section-controls">
@@ -84,16 +85,4 @@ document.querySelector('#app').innerHTML = `
   </div>
 `
 
-// Initialize the grid
-document.addEventListener('DOMContentLoaded', () => {
-
-
-  // Add event listener for size changes
-  document.getElementById('grid-size').addEventListener('change', (e) => {
-    console.log(e.target.value);
-    createGrid('grid', parseInt(e.target.value));
-  });
-
-
-});
 

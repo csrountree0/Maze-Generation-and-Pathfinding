@@ -29,21 +29,34 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const algorithm = e.dataTransfer.getData('algorithm');
         if(!gridfunc.get_generating()){
+            gridfunc.reset_paths();
             gridfunc.set_stop(false);
-            console.log(algorithm);
+         
+        //    console.log(algorithm);
             switch (algorithm) {
                 case 'backtracking-m':
                     await backtrack();
                     break;
                 case 'backtracking-p':
-                    await pathfunc.backtrack();
+                    if(gridfunc.get_start()!== null  && gridfunc.get_end()!== null){
+                        gridfunc.set_stop(false);
+                        await pathfunc.backtrack();
+                    }
                     break;
                 case 'kruskals':
-                    kruskals()
+                    await kruskals()
                     break;
                 case 'dijkstra':
+                    if(gridfunc.get_start()!== null  && gridfunc.get_end()!== null){
+                        gridfunc.set_stop(false);
+                        await pathfunc.dijkstra();
+                    }
                     break;
                 case 'astar':
+                    if(gridfunc.get_start()!== null  && gridfunc.get_end()!== null){
+                        gridfunc.set_stop(false);
+                        await pathfunc.astar();
+                    }
                     break;
                 case 'prims':
                     await prims();
@@ -106,6 +119,8 @@ export async function backtrack(){
 
     gridfunc.set_generating(true);
     await backtrackHelper(sx,sy,visited,sx,sy);
+    gridfunc.set_start(1,1);
+    gridfunc.set_end(grid.length-2,grid.length-2);
     grid[1][1]=2;
     grid[grid.length-2][grid.length-2]=3;
     gridfunc.updateGridFromArray();
@@ -163,6 +178,7 @@ let d = [1,2,3,4]
 }
 
 export async function kruskals(){
+    gridfunc.set_generating(true);
     grid = gridfunc.get_grid()
 
     let parents = []
@@ -295,10 +311,13 @@ export async function kruskals(){
         await new Promise(requestAnimationFrame);
     }
     
-
+    gridfunc.set_start(1,1);
+    gridfunc.set_end(grid.length-2,grid.length-2);  
     grid[1][1] = 2;
     grid[grid.length-2][grid.length-2] = 3;
     updateGridFromArray();
+
+    gridfunc.set_generating(false);
 }
 function updateGroupColor(parents, colors, root, newColor) {
     let queue = [root];
@@ -360,7 +379,7 @@ function sameparent(parents, cell1, cell2) {
 
 export async function prims() {
     grid = gridfunc.get_grid();
-    
+    gridfunc.set_generating(true);
 
     let visited = [];
     for (let i = 0; i < grid.length; i++) {
@@ -438,9 +457,12 @@ export async function prims() {
         walls.splice(wallIndex, 1);
     }
 
+    gridfunc.set_start(1,1);
+    gridfunc.set_end(grid.length-2,grid.length-2);
     grid[1][1] = 2;
     grid[grid.length - 2][grid.length - 2] = 3;
     updateGridFromArray();
+    gridfunc.set_generating(false);
 }
 
 

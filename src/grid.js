@@ -1,5 +1,3 @@
-import {set_start,set_end} from './maze-algorithms.js';
-
 let isMouseDown = false;
 let isAddingWall = false;
 let currentGrid = null;
@@ -7,10 +5,14 @@ let grid2d = [];
 let gridSize = 0;
 let generating = false;
 let stop = false;
+let start = null;
+let end = null;
 
 function createGrid(containerId, size) {
     set_start(-1,-1);
     set_end(-1,-1);
+    start = null;
+    end = null;
     gridSize = size;
     grid2d = Array(size).fill().map(() => Array(size).fill(0));
     const grid = document.getElementById(containerId);
@@ -98,17 +100,123 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('reset-grid').addEventListener('click', () => {
-        const size = parseInt(document.getElementById('grid-size').value);
-        createGrid('grid', size);
-        stop = true;
+        createGrid('grid', gridSize);
     });
 
-    document.addEventListener('mousedown', (e) => {
+    document.getElementById('reset-paths').addEventListener('click', () => reset_paths());
+
+   
+    const grid = document.getElementById('grid');
+    let draggedPoint = null;
+
+
+    const startPoint = document.createElement('div');
+    startPoint.className = 'draggable-point start-point';
+    startPoint.draggable = true;
+    startPoint.textContent = 'Start';
+    startPoint.addEventListener('dragstart', (e) => {
+        draggedPoint = 'start';
+        e.dataTransfer.setData('text/plain', 'start');
+    });
+    startPoint.addEventListener('dragend', () => {
+        draggedPoint = null;
+    });
+
+    const endPoint = document.createElement('div');
+    endPoint.className = 'draggable-point end-point';
+    endPoint.draggable = true;
+    endPoint.textContent = 'End';
+    endPoint.addEventListener('dragstart', (e) => {
+        draggedPoint = 'end';
+        e.dataTransfer.setData('text/plain', 'end');
+    });
+    endPoint.addEventListener('dragend', () => {
+        draggedPoint = null;
+    });
+
+   
+    const controlPanel = document.querySelector('.controls-panel');
+    const pointsContainer = document.createElement('div');
+    pointsContainer.className = 'points-container';
+    pointsContainer.appendChild(startPoint);
+    pointsContainer.appendChild(endPoint);
+    controlPanel.insertBefore(pointsContainer, controlPanel.firstChild);
+
+
+    grid.addEventListener('dragover', (e) => {
+        if (e.target.classList.contains('grid-square') && draggedPoint) {
+            e.preventDefault();
+        }
+    });
+
+    grid.addEventListener('dragenter', (e) => {
+        if (!generating && e.target.classList.contains('grid-square') && draggedPoint) {
+            const row = parseInt(e.target.dataset.row);
+            const col = parseInt(e.target.dataset.col);
+            
+            if (grid2d[row][col] !== 1) {
+                e.target.classList.add('drag-over');
+            }
+        }
+    });
+
+    grid.addEventListener('dragleave', (e) => {
+        if (e.target.classList.contains('grid-square') && draggedPoint) {
+            e.target.classList.remove('drag-over');
+        }
+    });
+
+    grid.addEventListener('drop', (e) => {
+        if (!generating && e.target.classList.contains('grid-square') && draggedPoint) {
+            e.preventDefault();
+            e.target.classList.remove('drag-over');
+            const row = parseInt(e.target.dataset.row);
+            const col = parseInt(e.target.dataset.col);
+            
+            if (grid2d[row][col] === 1) return;
+
+            if (draggedPoint === 'start') {
+                reset_paths();
+                if (start) {
+                    grid2d[start[0]][start[1]] = 0;
+                }
+             
+                start = [row, col];
+                grid2d[row][col] = 2;
+                set_start(row, col);
+            } else if (draggedPoint === 'end') {
+                reset_paths();
+                if (end) {
+                    grid2d[end[0]][end[1]] = 0;
+                }
+                end = [row, col];
+                grid2d[row][col] = 3;
+                set_end(row, col);
+            }
+            
+            updateGridFromArray();
+            draggedPoint = null; 
+        }
+    });
+
+    function handleWallDrawing(e) {
         if (!generating && e.target.classList.contains('grid-square')) {
+            const row = parseInt(e.target.dataset.row);
+            const col = parseInt(e.target.dataset.col);
+            
             isMouseDown = true;
             currentGrid = e.target.closest('.grid-container');
             isAddingWall = !(e.target.style.backgroundColor === 'black');
+            
+           
             if (isAddingWall) {
+                if (grid2d[row][col] === 2) {
+                    start = null;
+                    set_start(-1, -1);
+                } else if (grid2d[row][col] === 3) {
+                    end = null;
+                    set_end(-1, -1);
+                }
                 e.target.style.backgroundColor = 'black';
             } else {
                 e.target.style.backgroundColor = 'white';
@@ -116,9 +224,19 @@ document.addEventListener('DOMContentLoaded', () => {
             e.target.style.borderColor = e.target.style.backgroundColor;
             updateSquareState(e.target);
         }
-    });
+    }
+
+   
+    document.addEventListener('mousedown', handleWallDrawing);
+    document.addEventListener('touchstart', handleWallDrawing);
 
     document.addEventListener('mouseup', () => {
+        isMouseDown = false;
+        currentGrid = null;
+        isAddingWall = false;
+    });
+
+    document.addEventListener('touchend', () => {
         isMouseDown = false;
         currentGrid = null;
         isAddingWall = false;
@@ -129,9 +247,20 @@ document.addEventListener('DOMContentLoaded', () => {
         currentGrid = null;
     });
 
-    document.addEventListener('mouseenter', (e) => {
+    function handleWallDrawingMove(e) {
         if (!generating && isMouseDown && e.target.classList.contains('grid-square') && currentGrid === e.target.closest('.grid-container')) {
+            const row = parseInt(e.target.dataset.row);
+            const col = parseInt(e.target.dataset.col);
+            
             if (isAddingWall) {
+             
+                if (grid2d[row][col] === 2) {
+                    start = null;
+                    set_start(-1, -1);
+                } else if (grid2d[row][col] === 3) {
+                    end = null;
+                    set_end(-1, -1);
+                }
                 e.target.style.backgroundColor = 'black';
             } else {
                 e.target.style.backgroundColor = 'white';
@@ -139,8 +268,23 @@ document.addEventListener('DOMContentLoaded', () => {
             e.target.style.borderColor = e.target.style.backgroundColor;
             updateSquareState(e.target);
         }
-    }, true);
+    }
+
+    document.addEventListener('mousemove', handleWallDrawingMove);
+    document.addEventListener('touchmove', handleWallDrawingMove);
 });
+
+export function reset_paths(){
+    set_stop(true);
+    for (let i = 0; i < gridSize; i++) {
+        for (let j = 0; j < gridSize; j++) {
+            if (grid2d[i][j] === 4 || grid2d[i][j] === 5) {
+                grid2d[i][j] = 0;
+            }
+        }
+    }
+    updateGridFromArray();
+}
 
 export function get_grid(){
     return grid2d;
@@ -163,5 +307,18 @@ export function get_stop(){
 }
 export function set_stop(v){
     stop = v;
+}
+
+export function set_start(x,y){
+    start = [x,y];
+}
+export function set_end(x,y){
+    end = [x,y];
+}
+export function get_start(){
+    return start;
+}
+export function get_end(){
+    return end;
 }
 
