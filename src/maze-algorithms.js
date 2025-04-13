@@ -45,6 +45,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     break;
                 case 'astar':
                     break;
+                case 'prims':
+                    await prims();
+                    break;
             }
         }
     });
@@ -194,7 +197,7 @@ export async function kruskals(){
 
     updateGridFromArray();
     
-    while(walls.length > 0) {
+    while(walls.length > 0 && !gridfunc.get_stop()) {
         let ran = Math.floor(Math.random() * walls.length);
         let wx = walls[ran][0];
         let wy = walls[ran][1];
@@ -285,9 +288,11 @@ export async function kruskals(){
     for(let i = 0; i < grid.length; i++) {
         for(let j = 0; j < grid.length; j++) {
             if(grid[i][j] !== 1) { 
-                grid[i][j] = 0; 
+                grid[i][j] = 0;
             }
         }
+        updateGridFromArray();
+        await new Promise(requestAnimationFrame);
     }
     
 
@@ -295,8 +300,6 @@ export async function kruskals(){
     grid[grid.length-2][grid.length-2] = 3;
     updateGridFromArray();
 }
-
-
 function updateGroupColor(parents, colors, root, newColor) {
     let queue = [root];
     let visited = new Set();
@@ -326,7 +329,6 @@ function updateGroupColor(parents, colors, root, newColor) {
         }
     }
 }
-
 function find(parents, cell) {
     let [x, y] = cell;
     let path = [];
@@ -345,17 +347,100 @@ function find(parents, cell) {
     
     return root;
 }
-
 function union(parents, cell1, cell2) {
     let root1 = find(parents, cell1);
     let root2 = find(parents, cell2);
     parents[root1[0]][root1[1]] = root2;
 }
-
 function sameparent(parents, cell1, cell2) {
     let root1 = find(parents, cell1);
     let root2 = find(parents, cell2);
     return root1[0] === root2[0] && root1[1] === root2[1];
+}
+
+export async function prims() {
+    grid = gridfunc.get_grid();
+    
+
+    let visited = [];
+    for (let i = 0; i < grid.length; i++) {
+        visited.push([]);
+        for (let j = 0; j < grid.length; j++) {
+            visited[i].push(0);
+        }
+    }
+    
+
+    for (let i = 0; i < grid.length; i++) {
+        for (let j = 0; j < grid.length; j++) {
+            if (i === 0 || i === grid.length - 1 || j === 0 || j === grid.length - 1) {
+                grid[i][j] = 1;
+            }
+            else if ((!(j % 2) || !(i % 2))) {
+                grid[i][j] = 1;
+            }
+            else {
+                grid[i][j] = 5;
+            }
+        }
+    }
+    
+    updateGridFromArray();
+    
+
+    let cx = Math.floor(Math.random() * (grid.length - 2) / 2) * 2 + 1;
+    let cy = Math.floor(Math.random() * (grid.length - 2) / 2) * 2 + 1;
+    visited[cx][cy] = 1;
+    grid[cx][cy] = 0;
+    
+    let walls = [];
+    
+    if (cx > 1) walls.push([cx - 1, cy]);
+    if (cx < grid.length - 2) walls.push([cx + 1, cy]);
+    if (cy > 1) walls.push([cx, cy - 1]);
+    if (cy < grid.length - 2) walls.push([cx, cy + 1]);
+    
+    while (walls.length > 0 && !gridfunc.get_stop()) {
+        let wallIndex = Math.floor(Math.random() * walls.length);
+        let [wx, wy] = walls[wallIndex];
+        
+        let cell1, cell2;
+        if (wx % 2 === 0) {
+            cell1 = [wx - 1, wy];
+            cell2 = [wx + 1, wy];
+        } else {
+            cell1 = [wx, wy - 1];
+            cell2 = [wx, wy + 1];
+        }
+        
+        let visited1 = visited[cell1[0]][cell1[1]];
+        let visited2 = visited[cell2[0]][cell2[1]];
+        
+        if (visited1 !== visited2) {
+            grid[wx][wy] = 0;
+            
+
+            let unvisitedCell = visited1 ? cell2 : cell1;
+            visited[unvisitedCell[0]][unvisitedCell[1]] = 1;
+            grid[unvisitedCell[0]][unvisitedCell[1]] = 0;
+            
+
+            let [ux, uy] = unvisitedCell;
+            if (ux > 1 && !visited[ux - 2][uy]) walls.push([ux - 1, uy]);
+            if (ux < grid.length - 2 && !visited[ux + 2][uy]) walls.push([ux + 1, uy]);
+            if (uy > 1 && !visited[ux][uy - 2]) walls.push([ux, uy - 1]);
+            if (uy < grid.length - 2 && !visited[ux][uy + 2]) walls.push([ux, uy + 1]);
+            
+            updateGridFromArray();
+            await new Promise(requestAnimationFrame);
+        }
+
+        walls.splice(wallIndex, 1);
+    }
+
+    grid[1][1] = 2;
+    grid[grid.length - 2][grid.length - 2] = 3;
+    updateGridFromArray();
 }
 
 

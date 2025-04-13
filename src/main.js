@@ -32,17 +32,17 @@ document.querySelector('#app').innerHTML = `
         <div class="section-controls">
           <h2>Maze Generation</h2>
           <div class="algorithm-buttons">
-            <button draggable="true" class="algorithm-button" data-algorithm="kruskals">
-              <span class="button-label">Kruskal's</span>
-              <span class="button-desc">Randomized maze with minimum spanning tree</span>
-            </button>
             <button draggable="true" class="algorithm-button" data-algorithm="backtracking-m">
               <span class="button-label">Backtracking</span>
               <span class="button-desc">Depth-first search maze generation</span>
             </button>
-            <button draggable="true" class="algorithm-button" data-algorithm="brute-force">
-              <span class="button-label">Brute Force</span>
-              <span class="button-desc">Random wall removal</span>
+            <button draggable="true" class="algorithm-button" data-algorithm="kruskals">
+              <span class="button-label">Kruskal's</span>
+              <span class="button-desc">Randomized maze with minimum spanning tree</span>
+            </button>
+            <button draggable="true" class="algorithm-button" data-algorithm="prims">
+              <span class="button-label">Prim's</span>
+              <span class="button-desc">Minimum spanning tree maze generation</span>
             </button>
           </div>
         </div>
