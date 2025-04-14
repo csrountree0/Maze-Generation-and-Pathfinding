@@ -7,7 +7,7 @@ document.querySelector('#app').innerHTML = `
     <div class="main-header">
       <header>
         <h1>Maze Generation & Pathfinding Visualizer</h1>
-        <p id="my-info">by <a href="https://github.com/csrountree0">Colby Rountree</a></p>
+        <p id="my-info">by <a href="https://github.com/csrountree0" target="_blank">Colby Rountree</a></p>
       </header>
     </div>
     

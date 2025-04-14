@@ -69,7 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
 var start;
 var end;
 var grid;
-
+var time;
+var steps = 0;
 
 export function set_start(x,y){
     start = [x,y];
@@ -118,19 +119,30 @@ export async function backtrack(){
     sy = !(sy % 2) ? sy + 1 : sy;
 
     gridfunc.set_generating(true);
+    time = Date.now();
     await backtrackHelper(sx,sy,visited,sx,sy);
     gridfunc.set_start(1,1);
     gridfunc.set_end(grid.length-2,grid.length-2);
     grid[1][1]=2;
     grid[grid.length-2][grid.length-2]=3;
+    time = Date.now() - time;
+    document.getElementById('time-value').textContent = `${time}ms`;
+    document.getElementById('steps-value').textContent = `${steps}`;
     gridfunc.updateGridFromArray();
     gridfunc.set_generating(false);
+   
+
 }
 export async function backtrackHelper(sx,sy,v,x,y ){
+   
+    if(gridfunc.get_stop() === true){
+        return;
+    }
 v[x][y] = 1;
 let d = [1,2,3,4]
 // 1: up, 2: right, 3: left, 4: down
-    while(d.length > 0 && !gridfunc.get_stop()){
+    while(d.length > 0 && gridfunc.get_stop() === false){
+        steps++;
         grid[x][y]=0;
         let ran =Math.floor(Math.random() * d.length);
         if(d[ran] === 1){   // up
@@ -212,9 +224,10 @@ export async function kruskals(){
     }
 
     updateGridFromArray();
-    
+    time = Date.now();
     while(walls.length > 0 && !gridfunc.get_stop()) {
-        let ran = Math.floor(Math.random() * walls.length);
+        steps++;
+       let ran = Math.floor(Math.random() * walls.length);
         let wx = walls[ran][0];
         let wy = walls[ran][1];
         
@@ -298,6 +311,7 @@ export async function kruskals(){
         walls.splice(ran, 1);
         updateGridFromArray();
         await new Promise(requestAnimationFrame);
+
     }
     
 
@@ -310,7 +324,12 @@ export async function kruskals(){
         updateGridFromArray();
         await new Promise(requestAnimationFrame);
     }
-    
+
+    // update time
+    time = Date.now() - time;
+    document.getElementById('time-value').textContent = `${time}ms`;
+    document.getElementById('steps-value').textContent = `${steps}`;
+        
     gridfunc.set_start(1,1);
     gridfunc.set_end(grid.length-2,grid.length-2);  
     grid[1][1] = 2;
@@ -378,6 +397,7 @@ function sameparent(parents, cell1, cell2) {
 }
 
 export async function prims() {
+    steps = 0;
     grid = gridfunc.get_grid();
     gridfunc.set_generating(true);
 
@@ -418,8 +438,10 @@ export async function prims() {
     if (cx < grid.length - 2) walls.push([cx + 1, cy]);
     if (cy > 1) walls.push([cx, cy - 1]);
     if (cy < grid.length - 2) walls.push([cx, cy + 1]);
-    
+
+    time = Date.now();
     while (walls.length > 0 && !gridfunc.get_stop()) {
+        steps++
         let wallIndex = Math.floor(Math.random() * walls.length);
         let [wx, wy] = walls[wallIndex];
         
@@ -456,6 +478,12 @@ export async function prims() {
 
         walls.splice(wallIndex, 1);
     }
+
+
+    // update time
+    time = Date.now() - time;
+    document.getElementById('time-value').textContent = `${time}ms`;
+    document.getElementById('steps-value').textContent = `${steps}`;
 
     gridfunc.set_start(1,1);
     gridfunc.set_end(grid.length-2,grid.length-2);

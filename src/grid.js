@@ -9,6 +9,8 @@ let start = null;
 let end = null;
 
 function createGrid(containerId, size) {
+    document.getElementById('time-value').textContent = '0ms';
+    document.getElementById('steps-value').textContent = '0';
     set_start(-1,-1);
     set_end(-1,-1);
     start = null;
@@ -275,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 export function reset_paths(){
-    set_stop(true);
+    stop = true;
     for (let i = 0; i < gridSize; i++) {
         for (let j = 0; j < gridSize; j++) {
             if (grid2d[i][j] === 4 || grid2d[i][j] === 5) {

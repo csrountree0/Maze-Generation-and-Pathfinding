@@ -37,7 +37,9 @@ export async function backtrack(){
 }
 
 async function backtrackHelper(v,x,y){
-    if(x === end[0] && y === end[1]){
+
+
+    if(x === end[0] && y === end[1] || gridfunc.get_stop() === true){
         done = true;
         return;
     }
@@ -74,7 +76,7 @@ async function backtrackHelper(v,x,y){
 			}
 		}
         dir.splice(ran,1);
-    if(done){
+    if(done && gridfunc.get_stop() === false){
         //console.log("done");
         if(x!==start[0] || y!==start[1]){
             grid[x][y] = 4;
