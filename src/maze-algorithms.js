@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     await backtrack();
                     break;
                 case 'backtracking-p':
-                    if(gridfunc.get_start()!== null  && gridfunc.get_end()!== null){
+                    if(gridfunc.get_start()[0] !== -1 && gridfunc.get_end()[0] !== -1){
                         gridfunc.set_stop(false);
                         await pathfunc.backtrack();
                     }
@@ -48,15 +48,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     await kruskals()
                     break;
                 case 'dijkstra':
-                    if(gridfunc.get_start()!== null  && gridfunc.get_end()!== null){
+                    if(gridfunc.get_start()[0] !== -1 && gridfunc.get_end()[0] !== -1){
                         console.log("run")
                         gridfunc.set_stop(false);
                         await pathfunc.dijkstra();
                     }
-                    console.log("no")
                     break;
                 case 'astar':
-                    if(gridfunc.get_start()!== null  && gridfunc.get_end()!== null){
+                    if(gridfunc.get_start()[0] !== -1 && gridfunc.get_end()[0] !== -1){
                         gridfunc.set_stop(false);
                         await pathfunc.astar();
                     }

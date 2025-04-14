@@ -13,8 +13,8 @@ function createGrid(containerId, size) {
     document.getElementById('steps-value').textContent = '0';
     set_start(-1,-1);
     set_end(-1,-1);
-    start = null;
-    end = null;
+    start = [-1,-1];;
+    end = [-1,-1];;
     gridSize = size;
     grid2d = Array(size).fill().map(() => Array(size).fill(0));
     const grid = document.getElementById(containerId);
@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (draggedPoint === 'start') {
                 reset_paths();
-                if (start) {
+                if (start[0] !== -1) {
                     grid2d[start[0]][start[1]] = 0;
                 }
              
@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 set_start(row, col);
             } else if (draggedPoint === 'end') {
                 reset_paths();
-                if (end) {
+                if (end[0]!== -1) {
                     grid2d[end[0]][end[1]] = 0;
                 }
                 end = [row, col];
@@ -213,10 +213,10 @@ document.addEventListener('DOMContentLoaded', () => {
            
             if (isAddingWall) {
                 if (grid2d[row][col] === 2) {
-                    start = null;
+                    start = [-1,-1];
                     set_start(-1, -1);
                 } else if (grid2d[row][col] === 3) {
-                    end = null;
+                    end = [-1,-1];
                     set_end(-1, -1);
                 }
                 e.target.style.backgroundColor = 'black';
@@ -257,10 +257,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isAddingWall) {
              
                 if (grid2d[row][col] === 2) {
-                    start = null;
+                    start = [-1,-1];;
                     set_start(-1, -1);
                 } else if (grid2d[row][col] === 3) {
-                    end = null;
+                    end = [-1,-1];;
                     set_end(-1, -1);
                 }
                 e.target.style.backgroundColor = 'black';
