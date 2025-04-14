@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const algorithm = e.dataTransfer.getData('algorithm');
         if(!gridfunc.get_generating()){
+            gridfunc.set_generating(true);
             gridfunc.reset_paths();
             gridfunc.set_stop(false);
          
@@ -48,9 +49,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     break;
                 case 'dijkstra':
                     if(gridfunc.get_start()!== null  && gridfunc.get_end()!== null){
+                        console.log("run")
                         gridfunc.set_stop(false);
                         await pathfunc.dijkstra();
                     }
+                    console.log("no")
                     break;
                 case 'astar':
                     if(gridfunc.get_start()!== null  && gridfunc.get_end()!== null){
@@ -62,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     await prims();
                     break;
             }
+            gridfunc.set_generating(false);
         }
     });
 });
@@ -87,6 +91,7 @@ export function get_end(){
 
 export async function backtrack(){
  grid = gridfunc.get_grid()
+
    let visited = []
      // outline grid
     for(let i=0; i<grid.length;i++){
@@ -118,19 +123,16 @@ export async function backtrack(){
     let sy = Math.floor(Math.random() % (grid.length - 2));
     sy = !(sy % 2) ? sy + 1 : sy;
 
-    gridfunc.set_generating(true);
     time = Date.now();
+    steps = 0;
     await backtrackHelper(sx,sy,visited,sx,sy);
     gridfunc.set_start(1,1);
     gridfunc.set_end(grid.length-2,grid.length-2);
     grid[1][1]=2;
     grid[grid.length-2][grid.length-2]=3;
-    time = Date.now() - time;
-    document.getElementById('time-value').textContent = `${time}ms`;
-    document.getElementById('steps-value').textContent = `${steps}`;
+    gridfunc.update_stats(time,steps)
     gridfunc.updateGridFromArray();
-    gridfunc.set_generating(false);
-   
+
 
 }
 export async function backtrackHelper(sx,sy,v,x,y ){
@@ -190,7 +192,6 @@ let d = [1,2,3,4]
 }
 
 export async function kruskals(){
-    gridfunc.set_generating(true);
     grid = gridfunc.get_grid()
 
     let parents = []
@@ -225,6 +226,7 @@ export async function kruskals(){
 
     updateGridFromArray();
     time = Date.now();
+    steps=0;
     while(walls.length > 0 && !gridfunc.get_stop()) {
         steps++;
        let ran = Math.floor(Math.random() * walls.length);
@@ -326,17 +328,14 @@ export async function kruskals(){
     }
 
     // update time
-    time = Date.now() - time;
-    document.getElementById('time-value').textContent = `${time}ms`;
-    document.getElementById('steps-value').textContent = `${steps}`;
-        
+    gridfunc.update_stats(time,steps)
+
     gridfunc.set_start(1,1);
     gridfunc.set_end(grid.length-2,grid.length-2);  
     grid[1][1] = 2;
     grid[grid.length-2][grid.length-2] = 3;
     updateGridFromArray();
 
-    gridfunc.set_generating(false);
 }
 function updateGroupColor(parents, colors, root, newColor) {
     let queue = [root];
@@ -399,7 +398,6 @@ function sameparent(parents, cell1, cell2) {
 export async function prims() {
     steps = 0;
     grid = gridfunc.get_grid();
-    gridfunc.set_generating(true);
 
     let visited = [];
     for (let i = 0; i < grid.length; i++) {
@@ -481,16 +479,13 @@ export async function prims() {
 
 
     // update time
-    time = Date.now() - time;
-    document.getElementById('time-value').textContent = `${time}ms`;
-    document.getElementById('steps-value').textContent = `${steps}`;
+    gridfunc.update_stats(time,steps)
 
     gridfunc.set_start(1,1);
     gridfunc.set_end(grid.length-2,grid.length-2);
     grid[1][1] = 2;
     grid[grid.length - 2][grid.length - 2] = 3;
     updateGridFromArray();
-    gridfunc.set_generating(false);
 }
 
 

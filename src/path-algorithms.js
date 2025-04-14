@@ -1,9 +1,16 @@
 import * as gridfunc from './grid.js';
+import {update_stats} from "./grid.js";
 
-var grid;
-var start;
-var end;
+let grid;
+let start;
+let end;
 let done = false
+
+let time
+let steps = 0
+
+let bt_end = []
+
 export async function backtrack(){
     done = false;
     grid = gridfunc.get_grid();
@@ -29,11 +36,21 @@ export async function backtrack(){
             }
         }
     }
+    steps =0
+    time = Date.now()
     await backtrackHelper(visited, start[0], start[1]);
     gridfunc.updateGridFromArray();
     await new Promise(requestAnimationFrame);
 
-    
+    while(bt_end.length > 0){
+        let c = bt_end.pop();
+        grid[c[0]][c[1]]=4
+        gridfunc.updateGridFromArray()
+        await new Promise(requestAnimationFrame);
+    }
+    gridfunc.update_stats(time,steps)
+
+
 }
 
 async function backtrackHelper(v,x,y){
@@ -53,6 +70,7 @@ async function backtrackHelper(v,x,y){
     await new Promise(requestAnimationFrame);
     let dir = [1,2,3,4];
     while(dir.length > 0 && !done){
+        steps++
         let ran = Math.floor(Math.random() * dir.length);								// get a random direction
        // console.log(ran);
 		if (dir[ran] === 1) {											// checking up
@@ -79,7 +97,7 @@ async function backtrackHelper(v,x,y){
     if(done && gridfunc.get_stop() === false){
         //console.log("done");
         if(x!==start[0] || y!==start[1]){
-            grid[x][y] = 4;
+            bt_end.push([x,y])
         }
     }
     }
@@ -89,7 +107,6 @@ async function backtrackHelper(v,x,y){
 
 export async function dijkstra() {
     grid = gridfunc.get_grid();
-    gridfunc.set_generating(true);
 
     let start = gridfunc.get_start();
     let end = gridfunc.get_end();
@@ -116,8 +133,10 @@ export async function dijkstra() {
     }
 
     distances[start[0]][start[1]] = 0;
-
+    steps = 0
+    time = Date.now()
     while (unvisited.size > 0 && !gridfunc.get_stop()) {
+        steps++
         let current = null;
         let minDistance = Infinity;
         
@@ -166,6 +185,8 @@ export async function dijkstra() {
         current = previous[current[0]][current[1]];
     }
 
+    gridfunc.update_stats(time,steps)
+
     for (let [x, y] of path) {
         if (!(x === start[0] && y === start[1]) && !(x === end[0] && y === end[1])) {
             grid[x][y] = 4; 
@@ -174,13 +195,11 @@ export async function dijkstra() {
         }
     }
 
-    gridfunc.set_generating(false);
 }
 
 export async function astar() {
     grid = gridfunc.get_grid();
-    gridfunc.set_generating(true);
-
+    steps =0
     
     let gScore = []; 
     let fScore = []; 
@@ -215,8 +234,11 @@ export async function astar() {
     gScore[start[0]][start[1]] = 0;
     fScore[start[0]][start[1]] = heuristic(start, end);
     openSet.set(`${start[0]},${start[1]}`, fScore[start[0]][start[1]]);
+
+    time = Date.now()
   //  console.log(gridfunc.get_stop());
     while (openSet.size > 0 && !gridfunc.get_stop()) {
+        steps++
         let current = null;
         let lowestFScore = Infinity;
         
@@ -275,6 +297,8 @@ export async function astar() {
         current = cameFrom[current[0]][current[1]];
     }
 
+    update_stats(time,steps)
+
 
     for (let [x, y] of path) {
         if (!(x === start[0] && y === start[1]) && !(x === end[0] && y === end[1])) {
@@ -284,5 +308,4 @@ export async function astar() {
         }
     }
 
-    gridfunc.set_generating(false);
 }

@@ -73,7 +73,7 @@ document.querySelector('#app').innerHTML = `
             <h3>Algorithm Stats</h3>
             <div class="algorithm-stats">
               <span class="stat-label">Time:</span>
-              <span class="stat-value" id="time-value">0ms</span>
+              <span class="stat-value" id="time-value">0s</span>
               <span class="stat-label">Steps:</span>
               <span class="stat-value" id="steps-value">0</span>
             </div>

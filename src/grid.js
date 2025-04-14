@@ -9,7 +9,7 @@ let start = null;
 let end = null;
 
 function createGrid(containerId, size) {
-    document.getElementById('time-value').textContent = '0ms';
+    document.getElementById('time-value').textContent = '0s';
     document.getElementById('steps-value').textContent = '0';
     set_start(-1,-1);
     set_end(-1,-1);
@@ -286,6 +286,13 @@ export function reset_paths(){
         }
     }
     updateGridFromArray();
+}
+
+export function update_stats(time,steps){
+    time = (Date.now() - time)/1000;
+    document.getElementById('time-value').textContent = `${time}s`;
+    document.getElementById('steps-value').textContent = `${steps}`;
+
 }
 
 export function get_grid(){

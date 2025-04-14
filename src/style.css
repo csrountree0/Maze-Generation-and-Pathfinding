@@ -379,6 +379,8 @@ header {
     transform: translateY(-2px);
 }
 
+
+
 .draggable-point:active {
     cursor: grabbing;
     transform: translateY(0);
