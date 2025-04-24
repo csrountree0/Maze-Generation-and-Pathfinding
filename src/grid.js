@@ -277,6 +277,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 export function reset_paths(){
+    document.getElementById('time-value').textContent = '0s';
+    document.getElementById('steps-value').textContent = '0';
+
     stop = true;
     for (let i = 0; i < gridSize; i++) {
         for (let j = 0; j < gridSize; j++) {

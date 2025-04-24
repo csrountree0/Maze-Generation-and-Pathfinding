@@ -188,6 +188,9 @@ export async function dijkstra() {
     gridfunc.update_stats(time,steps)
 
     for (let [x, y] of path) {
+        if(gridfunc.get_stop() === true){
+            break;
+        }
         if (!(x === start[0] && y === start[1]) && !(x === end[0] && y === end[1])) {
             grid[x][y] = 4; 
             gridfunc.updateGridFromArray();
@@ -301,6 +304,9 @@ export async function astar() {
 
 
     for (let [x, y] of path) {
+        if(gridfunc.get_stop() === true){
+            break;
+        }
         if (!(x === start[0] && y === start[1]) && !(x === end[0] && y === end[1])) {
             grid[x][y] = 4; 
             gridfunc.updateGridFromArray();
