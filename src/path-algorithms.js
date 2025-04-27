@@ -42,13 +42,15 @@ export async function backtrack(){
     gridfunc.updateGridFromArray();
     await new Promise(requestAnimationFrame);
 
+    gridfunc.update_stats(time,steps)
+
     while(bt_end.length > 0 && !gridfunc.get_stop()){
         let c = bt_end.pop();
         grid[c[0]][c[1]]=4
         gridfunc.updateGridFromArray()
         await new Promise(requestAnimationFrame);
     }
-    gridfunc.update_stats(time,steps)
+   
 
 
 }

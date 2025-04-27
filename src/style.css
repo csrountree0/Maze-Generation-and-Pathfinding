@@ -221,7 +221,7 @@ header {
   background-color: #242424;
   border: 1px solid #646cff;
   border-radius: 4px;
-  cursor: grab;
+  cursor: pointer;
   transition: all 0.2s;
 }
 

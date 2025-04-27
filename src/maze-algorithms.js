@@ -7,65 +7,53 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridContainer = document.querySelector('.grid-container');
     
     algorithmButtons.forEach(button => {
-        button.addEventListener('dragstart', (e) => {
-            e.dataTransfer.setData('algorithm', e.target.dataset.algorithm);
-        });
-    });
-    
-    gridContainer.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        gridContainer.classList.add('drag-over');
-    });
-
-    gridContainer.addEventListener('dragleave', (e) => {
-        if (!gridContainer.contains(e.relatedTarget)) {
-            gridContainer.classList.remove('drag-over');
-        }
-    });
-
-    gridContainer.addEventListener('drop', async (e) => {
-        e.preventDefault();
-        gridContainer.classList.remove('drag-over');
-        
-        const algorithm = e.dataTransfer.getData('algorithm');
-        if(!gridfunc.get_generating()){
-            gridfunc.set_generating(true);
-            gridfunc.reset_paths();
-            gridfunc.set_stop(false);
-         
-        //    console.log(algorithm);
-            switch (algorithm) {
-                case 'backtracking-m':
-                    await backtrack();
-                    break;
-                case 'backtracking-p':
-                    if(gridfunc.get_start()[0] !== -1 && gridfunc.get_end()[0] !== -1){
-                        gridfunc.set_stop(false);
-                        await pathfunc.backtrack();
-                    }
-                    break;
-                case 'kruskals':
-                    await kruskals()
-                    break;
-                case 'dijkstra':
-                    if(gridfunc.get_start()[0] !== -1 && gridfunc.get_end()[0] !== -1){
-                        console.log("run")
-                        gridfunc.set_stop(false);
-                        await pathfunc.dijkstra();
-                    }
-                    break;
-                case 'astar':
-                    if(gridfunc.get_start()[0] !== -1 && gridfunc.get_end()[0] !== -1){
-                        gridfunc.set_stop(false);
-                        await pathfunc.astar();
-                    }
-                    break;
-                case 'prims':
-                    await prims();
-                    break;
+        button.addEventListener('click', async () => {
+            const algorithm = button.dataset.algorithm;
+            if(!gridfunc.get_maze_generating() && !gridfunc.get_path_generating()){
+                
+                gridfunc.reset_paths();
+                gridfunc.set_stop(false);
+             
+                switch (algorithm) {
+                    case 'backtracking-m':
+                        gridfunc.set_maze_generating(true);
+                        await backtrack();
+                        break;
+                    case 'backtracking-p':
+                        gridfunc.set_path_generating(true);
+                        if(gridfunc.get_start()[0] !== -1 && gridfunc.get_end()[0] !== -1){
+                            gridfunc.set_stop(false);
+                            await pathfunc.backtrack();
+                        }
+                        break;
+                    case 'kruskals':
+                        gridfunc.set_maze_generating(true);
+                        await kruskals()
+                        break;
+                    case 'dijkstra':
+                        gridfunc.set_path_generating(true);
+                        if(gridfunc.get_start()[0] !== -1 && gridfunc.get_end()[0] !== -1){
+                            console.log("run")
+                            gridfunc.set_stop(false);
+                            await pathfunc.dijkstra();
+                        }
+                        break;
+                    case 'astar':
+                        gridfunc.set_path_generating(true);
+                        if(gridfunc.get_start()[0] !== -1 && gridfunc.get_end()[0] !== -1){
+                            gridfunc.set_stop(false);
+                            await pathfunc.astar();
+                        }
+                        break;
+                    case 'prims':
+                        gridfunc.set_maze_generating(true);
+                        await prims();
+                        break;
+                }
+                gridfunc.set_maze_generating(false);
+                gridfunc.set_path_generating(false);
             }
-            gridfunc.set_generating(false);
-        }
+        });
     });
 });
 
@@ -113,6 +101,7 @@ export async function backtrack(){
         }
     }
 
+
    // set_grid(grid)
     gridfunc.updateGridFromArray(grid)
     await new Promise(requestAnimationFrame)
@@ -125,6 +114,7 @@ export async function backtrack(){
     time = Date.now();
     steps = 0;
     await backtrackHelper(sx,sy,visited,sx,sy);
+    if(gridfunc.get_stop()) return;
     gridfunc.set_start(1,1);
     gridfunc.set_end(grid.length-2,grid.length-2);
     grid[1][1]=2;
@@ -136,9 +126,8 @@ export async function backtrack(){
 }
 export async function backtrackHelper(sx,sy,v,x,y ){
    
-    if(gridfunc.get_stop() === true){
-        return;
-    }
+    if(gridfunc.get_stop() === true) return;
+    
 v[x][y] = 1;
 let d = [1,2,3,4]
 // 1: up, 2: right, 3: left, 4: down
@@ -315,6 +304,7 @@ export async function kruskals(){
 
     }
     
+    if(gridfunc.get_stop()) return;
 
     for(let i = 0; i < grid.length; i++) {
         for(let j = 0; j < grid.length; j++) {
@@ -477,6 +467,7 @@ export async function prims() {
     }
 
 
+    if(gridfunc.get_stop()) return;
     // update time
     gridfunc.update_stats(time,steps)
 

@@ -3,12 +3,14 @@ let isAddingWall = false;
 let currentGrid = null;
 let grid2d = [];
 let gridSize = 0;
-let generating = false;
+let maze_generating = false;
+let path_generating = false;
 let stop = false;
 let start = null;
 let end = null;
 
 function createGrid(containerId, size) {
+    stop = true;
     document.getElementById('time-value').textContent = '0s';
     document.getElementById('steps-value').textContent = '0';
     set_start(-1,-1);
@@ -35,6 +37,9 @@ function createGrid(containerId, size) {
             grid.appendChild(square);
         }
     }
+    document.getElementById('time-value').textContent = '0s';
+    document.getElementById('steps-value').textContent = '0';
+    
 }
 
 function updateSquareState(square) {
@@ -152,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     grid.addEventListener('dragenter', (e) => {
-        if (!generating && e.target.classList.contains('grid-square') && draggedPoint) {
+        if (!maze_generating && !path_generating && e.target.classList.contains('grid-square') && draggedPoint) {
             const row = parseInt(e.target.dataset.row);
             const col = parseInt(e.target.dataset.col);
             
@@ -169,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     grid.addEventListener('drop', (e) => {
-        if (!generating && e.target.classList.contains('grid-square') && draggedPoint) {
+        if (!maze_generating && !path_generating && e.target.classList.contains('grid-square') && draggedPoint) {
             e.preventDefault();
             e.target.classList.remove('drag-over');
             const row = parseInt(e.target.dataset.row);
@@ -202,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function handleWallDrawing(e) {
-        if (!generating && e.target.classList.contains('grid-square')) {
+        if (!maze_generating && !path_generating && e.target.classList.contains('grid-square')) {
             const row = parseInt(e.target.dataset.row);
             const col = parseInt(e.target.dataset.col);
             
@@ -250,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function handleWallDrawingMove(e) {
-        if (!generating && isMouseDown && e.target.classList.contains('grid-square') && currentGrid === e.target.closest('.grid-container')) {
+        if (!maze_generating && !path_generating && isMouseDown && e.target.classList.contains('grid-square') && currentGrid === e.target.closest('.grid-container')) {
             const row = parseInt(e.target.dataset.row);
             const col = parseInt(e.target.dataset.col);
             
@@ -277,8 +282,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 export function reset_paths(){
-    document.getElementById('time-value').textContent = '0s';
-    document.getElementById('steps-value').textContent = '0';
+    
+    if(maze_generating) return;
+        
 
     stop = true;
     for (let i = 0; i < gridSize; i++) {
@@ -289,9 +295,13 @@ export function reset_paths(){
         }
     }
     updateGridFromArray();
+    document.getElementById('time-value').textContent = '0s';
+    document.getElementById('steps-value').textContent = '0';
+    path_generating = false;
 }
 
 export function update_stats(time,steps){
+    if(!maze_generating && !path_generating) return;
     time = (Date.now() - time)/1000;
     document.getElementById('time-value').textContent = `${time}s`;
     document.getElementById('steps-value').textContent = `${steps}`;
@@ -307,13 +317,19 @@ export function set_grid(grid){
     updateGridFromArray();
 }
 
-export function set_generating(v){
-    generating = v;
+export function set_maze_generating(v){
+    maze_generating = v;
 }
-export function get_generating(){
-    return generating;
+export function get_maze_generating(){
+    return maze_generating;
 }
 
+export function set_path_generating(v){
+    path_generating = v;
+}
+export function get_path_generating(){
+    return path_generating;
+}
 export function get_stop(){
     return stop;
 }
